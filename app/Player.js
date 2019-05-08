@@ -10,6 +10,7 @@ import TrackDetails from './TrackDetails';
 import SeekBar from './SeekBar';
 import Controls from './Controls';
 import Video from 'react-native-video';
+import TrackList from './TrackList';
 
 export default class Player extends Component {
   constructor(props) {
@@ -80,7 +81,7 @@ export default class Player extends Component {
 
 
   render() {
-    const track = this.props.tracks[this.state.selectedTrack];
+    /*const track = this.props.tracks[this.state.selectedTrack];
     const video = this.state.isChanging ? null : (
       <Video source={{uri: track.audioUrl}} // Can be a URL or a local file.
         ref="audioElement"
@@ -94,32 +95,45 @@ export default class Player extends Component {
         onError={this.videoError}    // Callback when video cannot be loaded
         style={styles.audioElement} />
     );
+    const { navigate } = this.props.navigation*/
 
     return (
-      <View style={styles.container}>
-        <StatusBar hidden={true} />
-        <Header message="Playing From Charts" />
-        <AlbumArt url={track.albumArtUrl} />
-        <TrackDetails title={track.title} artist={track.artist} />
-        <SeekBar
-          onSeek={this.seek.bind(this)}
-          trackLength={this.state.totalLength}
-          onSlidingStart={() => this.setState({paused: true})}
-          currentPosition={this.state.currentPosition} />
-        <Controls
-          onPressRepeat={() => this.setState({repeatOn : !this.state.repeatOn})}
-          repeatOn={this.state.repeatOn}
-          shuffleOn={this.state.shuffleOn}
-          forwardDisabled={this.state.selectedTrack === this.props.tracks.length - 1}
-          onPressShuffle={() => this.setState({shuffleOn: !this.state.shuffleOn})}
-          onPressPlay={() => this.setState({paused: false})}
-          onPressPause={() => this.setState({paused: true})}
-          onBack={this.onBack.bind(this)}
-          onForward={this.onForward.bind(this)}
-          paused={this.state.paused}/>
-        {video}
-      </View>
-    );
+        <View style={styles.container}>
+            <StatusBar hidden={true} />
+            <Header
+                onDownPress={() => navigate('TrackList')}
+                message="Playing From Charts"
+            />
+            <AlbumArt url={track.albumArtUrl} />
+            <TrackDetails title={track.title} artist={track.artist} />
+            <SeekBar
+                onSeek={this.seek.bind(this)}
+                trackLength={this.state.totalLength}
+                onSlidingStart={() => this.setState({ paused: true })}
+                currentPosition={this.state.currentPosition}
+            />
+            <Controls
+                onPressRepeat={() =>
+                    this.setState({ repeatOn: !this.state.repeatOn })
+                }
+                repeatOn={this.state.repeatOn}
+                shuffleOn={this.state.shuffleOn}
+                forwardDisabled={
+                    this.state.selectedTrack ===
+                    this.props.tracks.length - 1
+                }
+                onPressShuffle={() =>
+                    this.setState({ shuffleOn: !this.state.shuffleOn })
+                }
+                onPressPlay={() => this.setState({ paused: false })}
+                onPressPause={() => this.setState({ paused: true })}
+                onBack={this.onBack.bind(this)}
+                onForward={this.onForward.bind(this)}
+                paused={this.state.paused}
+            />
+            {video}
+        </View>
+    )
   }
 }
 
