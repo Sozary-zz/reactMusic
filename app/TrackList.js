@@ -15,6 +15,29 @@ import {
 import AudioRecorderPlayer from 'react-native-audio-recorder-player'
 import Permissions from 'react-native-permissions'
 const url = 'http://7117de9a.ngrok.io'
+
+const styles = StyleSheet.create({
+    container: {
+        height: '100%',
+        backgroundColor: '#292929',
+    },
+    recordingButton: {
+        height: 30,
+        width: 30,
+        margin: 20,
+        alignSelf: 'flex-end',
+    },
+    off: {
+        opacity: 0.3,
+    },
+    noDataMessage: {
+        color: '#555555',
+        paddingTop: 8,
+        paddingBottom: 8,
+        fontSize: 20,
+        textAlign: 'center',
+    },
+})
 export default class App extends Component {
                    constructor(props) {
                        super(props)
@@ -24,6 +47,80 @@ export default class App extends Component {
                            loading: true,
                        }
                    }
+                   audioRecorderPlayer = new AudioRecorderPlayer()
+
+                   onStartRecord = async () => {
+                       const result = await this.audioRecorderPlayer.startRecorder(
+                           path
+                       )
+                       this.audioRecorderPlayer.addRecordBackListener(
+                           e => {
+                               this.setState({
+                                   recordSecs:
+                                       e.current_position,
+                                   recordTime: this.audioRecorderPlayer.mmssss(
+                                       Math.floor(
+                                           e.current_position
+                                       )
+                                   ),
+                               })
+                               return
+                           }
+                       )
+                       console.log(result)
+                   }
+
+                   onStopRecord = async () => {
+                       const result = await this.audioRecorderPlayer.stopRecorder()
+                       this.audioRecorderPlayer.removeRecordBackListener()
+                       this.setState({
+                           recordSecs: 0,
+                       })
+                       this.uploadAudioCommand()
+                   }
+
+                   onRecorderClick() {
+                       if (this.state.recording)
+                           this.onStopRecord()
+                       else this.onStartRecord()
+                       this.setState({
+                           recording: !this.state.recording,
+                       })
+                   }
+
+                   uploadAudioCommand = async () => {
+                       console.warn("ff");
+                       
+                       file = {
+                           uri: 'file:///sdcard/command.wav',
+                           name: 'command.wav',
+                           type: 'audio/wav',
+                       }
+                       const body = new FormData()
+                       body.append('file', file)
+                       try {
+                           const res = await fetch(
+                               'http://157.230.19.63:3000',
+                               {
+                                   method: 'POST',
+                                   headers: {
+                                       Accept:
+                                           'application/json',
+                                       'Content-Type':
+                                           'multipart/form-data',
+                                   },
+                                   body,
+                               }
+                           )
+                           console.log(res)
+                       } catch (err) {
+                           /*Alert.alert(
+                "Le fichier audio n'a pas pu être envoyé au serveur..."
+            );*/
+                           console.log(err)
+                       }
+                   }
+
                    async componentDidMount() {
                        //    this.checkRecordPermission()
                        try {
@@ -100,6 +197,26 @@ export default class App extends Component {
                                    >
                                        {this.renderAlbums()}
                                    </ScrollView>
+                                   <TouchableOpacity
+                                       activeOpacity={
+                                           0.0
+                                       }
+                                       onPress={() => {
+                                           this.onRecorderClick()
+                                       }}
+                                   >
+                                       <Image
+                                           style={[
+                                               styles.recordingButton,
+                                               this
+                                                   .state
+                                                   .recording
+                                                   ? []
+                                                   : styles.off,
+                                           ]}
+                                           source={require('../img/microphone.png')}
+                                       />
+                                   </TouchableOpacity>
                                </View>
                            )
                        } else {
@@ -116,19 +233,25 @@ export default class App extends Component {
                            </Separator>
                        )
                    }
-                   _body(item){
-                        return (
-                            <View style={{padding:10}}>
-                            <Text style={{textAlign:'center'}}>{item.body}</Text>
-                            </View>
-                        );
-                    }
+                   _body(item) {
+                       return (
+                           <View style={{ padding: 10 }}>
+                               <Text
+                                   style={{
+                                       textAlign: 'center',
+                                   }}
+                               >
+                                   {item.body}
+                               </Text>
+                           </View>
+                       )
+                   }
                    renderAlbums() {
-                    let arr = []
-                    for (let album of this.state.albums) {
-                        arr.push(
-                            <View key={album.name}>
-                                {/* <Accordion
+                       let arr = []
+                       for (let album of this.state.albums) {
+                           arr.push(
+                               <View key={album.name}>
+                                   {/* <Accordion
                                     label={album.name}
                                     info={this.getArtistName(
                                         album.name
@@ -138,23 +261,24 @@ export default class App extends Component {
                                         album
                                     )}
                                 </Accordion> */}
-                                <Text>{this.getArtistName(
-                                        album.name
-                                    )}</Text>
-                            </View>
-                        )
-                    }
-                    if (!arr || arr.length === 0) {
-                        return (
-                            <Text
-                                style={styles.noDataMessage}
-                            >
-                                Aucun album trouvé.
-                            </Text>
-                        )
-                    }
-                    return <View>{arr}</View>
-                     
+                                   <Text>
+                                       {this.getArtistName(
+                                           album.name
+                                       )}
+                                   </Text>
+                               </View>
+                           )
+                       }
+                       if (!arr || arr.length === 0) {
+                           return (
+                               <Text
+                                   style={styles.noDataMessage}
+                               >
+                                   Aucun album trouvé.
+                               </Text>
+                           )
+                       }
+                       return <View>{arr}</View>
                    }
 
                    renderTracks(album) {
