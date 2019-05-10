@@ -10,11 +10,10 @@ import {
     Alert,
     ActivityIndicator,
 } from 'react-native'
-// import { AccordionList } from 'accordion-collapse-react-native'
-// import { Separator } from 'native-base'
+import  Accordion  from './components/Accordion'
 import AudioRecorderPlayer from 'react-native-audio-recorder-player'
 import Permissions from 'react-native-permissions'
-const url = 'http://7117de9a.ngrok.io'
+const url = 'http://5d718e2d.ngrok.io'
 
 const styles = StyleSheet.create({
     container: {
@@ -89,8 +88,8 @@ export default class App extends Component {
                    }
 
                    uploadAudioCommand = async () => {
-                       console.warn("ff");
-                       
+                       console.warn('ff')
+
                        file = {
                            uri: 'file:///sdcard/command.wav',
                            name: 'command.wav',
@@ -198,9 +197,7 @@ export default class App extends Component {
                                        {this.renderAlbums()}
                                    </ScrollView>
                                    <TouchableOpacity
-                                       activeOpacity={
-                                           0.0
-                                       }
+                                       activeOpacity={0.0}
                                        onPress={() => {
                                            this.onRecorderClick()
                                        }}
@@ -208,8 +205,7 @@ export default class App extends Component {
                                        <Image
                                            style={[
                                                styles.recordingButton,
-                                               this
-                                                   .state
+                                               this.state
                                                    .recording
                                                    ? []
                                                    : styles.off,
@@ -223,49 +219,20 @@ export default class App extends Component {
                            return <ActivityIndicator />
                        }
                    }
-                   _head(item) {
-                       return (
-                           <Separator
-                               bordered
-                               style={{ alignItems: 'center' }}
-                           >
-                               <Text>{item.title}</Text>
-                           </Separator>
-                       )
-                   }
-                   _body(item) {
-                       return (
-                           <View style={{ padding: 10 }}>
-                               <Text
-                                   style={{
-                                       textAlign: 'center',
-                                   }}
-                               >
-                                   {item.body}
-                               </Text>
-                           </View>
-                       )
-                   }
                    renderAlbums() {
                        let arr = []
                        for (let album of this.state.albums) {
                            arr.push(
                                <View key={album.name}>
-                                   {/* <Accordion
-                                    label={album.name}
-                                    info={this.getArtistName(
-                                        album.name
-                                    )}
-                                >
-                                    {this.renderTracks(
-                                        album
-                                    )}
-                                </Accordion> */}
-                                   <Text>
-                                       {this.getArtistName(
+                                   <Accordion
+                                       label={album.name}
+                                       info={this.getArtistName(
                                            album.name
                                        )}
-                                   </Text>
+                                   >
+
+                                       {this.renderTracks(album)}
+                                   </Accordion>
                                </View>
                            )
                        }
@@ -278,13 +245,16 @@ export default class App extends Component {
                                </Text>
                            )
                        }
+                       console.warn(arr);
+                       
                        return <View>{arr}</View>
                    }
 
                    renderTracks(album) {
                        const { navigate } = this.props.navigation
                        let arr = []
-
+               
+                    
                        for (let track of this.state.tracks) {
                            if (
                                track.metadata.album ===
@@ -297,8 +267,17 @@ export default class App extends Component {
                                        track.metadata
                                    )
                                arr.push(
-                                   <View key={trackTitle}>
-                                       <TouchableOpacity
+                                   <View
+                                       key={
+                                           trackTitle
+                                       }
+                                   >
+                                       <Text>
+                                           {
+                                               trackTitle
+                                           }
+                                       </Text>
+                                       {/* <TouchableOpacity
                                            onPress={() =>
                                                navigate(
                                                    'MusicPlayer',
@@ -323,7 +302,7 @@ export default class App extends Component {
                                            >
                                                {trackTitle}
                                            </Text>
-                                       </TouchableOpacity>
+                                       </TouchableOpacity> */}
                                    </View>
                                )
                            }
